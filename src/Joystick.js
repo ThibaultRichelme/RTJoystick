@@ -1,7 +1,7 @@
            /*
 
            		Project Name: RTJoystick
-           		Author: Thibault Richelmme
+           		Author: Thibault Richelme
            		Date: 20/06/1976
            		Description: RTJoystick provides a Joystick widget to include in webpages for controlling robot 
            
