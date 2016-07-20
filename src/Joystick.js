@@ -15,12 +15,13 @@
 				var g_mousePos;
 				var g_errorMessage;
 				var g_showWidgetData;
-				
+				var g_debug;	
 				var g_debugConsole;
 				var g_debugConsoleCtx;
+				var g_call;
 
 
-				Joystick.prototype.initialize = function(canvasId, canvasHeight, canvasWidth, speedLevels, showWidgetValue, siteValue) {
+				Joystick.prototype.initialize = function(canvasId, canvasHeight, canvasWidth, speedLevels, showWidgetValue, siteValue, debug) {
 					
 					g_canvas = document.createElement("canvas");
 					g_canvas.id = canvasId;
@@ -37,6 +38,7 @@
 					g_speedLevels = speedLevels;
 					g_showWidgetData = showWidgetValue;
 					g_link = siteValue; //Ajax post to server with values
+					g_debug = debug;
 									
 					if (g_showWidgetData) {
 						g_debugConsole = document.createElement("canvas");
@@ -54,30 +56,44 @@
 				{
 					return getWidgetData.call(this);
 				}
-	
-	
+				
+
+				function getDebugInfosInConsole(e)
+				{
+					if(g_debug)
+					console.log(e);		
+				}	
+								
+				
 				function onMouseMove(evt) {
 					if (g_mouseDown) 
 					{
 						g_mousePos = getMousePos(g_canvas, evt);
 						redrawWidget();		            
+						postWidgetData(getLink() + getWidgetDataAsUrlParameters());
 					}
 				}
-	
+
+				
 				function onMouseDown(evt) {
 					g_mouseDown = true;
 				}
 	
+				
 				function onMouseUp(evt) {
 					g_mouseDown = false;
 					initializeWidget.call(this);
+					postWidgetData(getLink() + getWidgetDataAsUrlParameters());
 				}
 	
+				
 				function onMouseOut(evt) {
 					g_mouseDown = false;
 					initializeWidget.call(this);
+					postWidgetData(getLink() + getWidgetDataAsUrlParameters());
 				}
 	
+				
 				function initializeWidget() {
 					try {
 						g_mousePos = {
@@ -88,24 +104,66 @@
 						drawWidget(g_canvas, getWidgetDataToString(), g_mousePos);
 						return true;
 					} catch (e) {
-						g_errorMessage = "Error : initializeWidget()";
+						g_errorMessage = "Error : initializeWidget() : ";
+						getDebugInfosInConsole(g_errorMessage + e);
 						return false;
 					}
 				}
-
 
 				function redrawWidget() {
 					try {
 						g_widgetData = getWidgetData(g_canvas, g_mousePos);
 						drawWidget(g_canvas, getWidgetDataToString(), g_mousePos);
 					} catch (e) {
-						g_errorMessage = "Error : redrawWidget()";
+						g_errorMessage = "Error : redrawWidget() : ";
+						getDebugInfosInConsole(g_errorMessage + e);
 						initializeWidget();
 					}
 				}
 	
 				function getErrorMessage() {
 					return g_errorMessage;
+				}
+				
+				
+				function getWidgetDataAsUrlParameters()
+				{
+					return "?direction=" + getWidgetData().direction + '&angle=' + getWidgetData().angle + '&speed=' + getWidgetData().speed;
+				}
+
+				function postWidgetData(url) {
+			
+					var httpRequest = false;
+			
+					if (window.XMLHttpRequest) { // Crossbrowser
+						httpRequest = new XMLHttpRequest();
+						if (httpRequest.overrideMimeType) {
+							httpRequest.overrideMimeType('text/xml');
+						}
+					}
+						
+					if (!httpRequest) {
+						g_errorMessage = "Error : postWidgetData() : " ;
+						getDebugInfosInConsole(g_errorMessage + e);
+						return false;
+					}
+					
+					httpRequest.onreadystatechange = function() { onPostWidgetDataEvent(httpRequest); };
+					httpRequest.open('POST', url, true);
+					httpRequest.send(null);	
+				}
+				
+
+				function onPostWidgetDataEvent(httpRequest) {
+			
+					if (httpRequest.readyState == 4) {
+						if (httpRequest.status == 200) {							
+							getDebugInfosInConsole(httpRequest.status);
+						} else {
+							g_errorMessage = "Error : onPostWidgetDataEvent() : ";
+							getDebugInfosInConsole(g_errorMessage + httpRequest.status);
+						}
+					}
 				}
  		    
 
@@ -205,7 +263,8 @@
  		                link: link
  		            };
  		        } catch (e) {
- 		            g_errorMessage = "Error : getWidgetData() => " + e;
+ 		            g_errorMessage = "Error : getWidgetData() : ";
+ 		            getDebugInfosInConsole(g_errorMessage + e);
  		            return {
  		                coordx: 0,
  		                coordy: 0,
@@ -224,7 +283,8 @@
  		        try {
  		            return widgetValues = g_widgetData.angle + ', ' + g_widgetData.coordx + ', ' + g_widgetData.coordy + ', ' + g_widgetData.direction + ', ' + g_widgetData.speed + ', ' + g_widgetData.radius;
  		        } catch (e) {
- 		            g_errorMessage = "Error : getWidgetDataToString() => " + e;
+ 		            g_errorMessage = "Error : getWidgetDataToString() : ";
+ 		            getDebugInfosInConsole(g_errorMessage + e);
  		            return "";
  		        }
  		    }
@@ -235,7 +295,8 @@
  		        try {
  		            return g_link;
  		        } catch (e) {
- 		            g_errorMessage = "Error : getLink() => " + e;
+ 		            g_errorMessage = "Error : getLink() : ";
+ 		            getDebugInfosInConsole(g_errorMessage + e);
  		            return "";
  		        }
  		    }
@@ -251,7 +312,7 @@
  		                y: heigth - mousePos.y
  		            };
  		        } catch (e) {
- 		            g_errorMessage = "Error : getMouseCartesianPos() => " + e;
+ 		            g_errorMessage = "Error : getMouseCartesianPos() : ";
  		            return {
  		                x: 0,
  		                y: 0
@@ -273,7 +334,7 @@
 
  		            return angle;
  		        } catch (e) {
- 		            g_errorMessage = "Error : getAngleDirection() => " + e;
+ 		            g_errorMessage = "Error : getAngleDirection() : ";
  		            return 0;
  		        }
  		    }
@@ -288,7 +349,7 @@
  		                y: evt.clientY - rect.top
  		            };
  		        } catch (e) {
- 		            g_errorMessage = "Error : getMousePos() => " + e;
+ 		            g_errorMessage = "Error : getMousePos() : ";
  		            return {
  		                x: 0,
  		                y: 0
@@ -310,7 +371,7 @@
 
  		            return roundedRadius;
  		        } catch (e) {
- 		            g_errorMessage = "Error : getRadius() => " + e;
+ 		            g_errorMessage = "Error : getRadius() : ";
  		            return 0;
  		        }
  		    }
@@ -328,7 +389,7 @@
 
  		            return calcSpeed;
  		        } catch (e) {
- 		            g_errorMessage = "Error : getSpeedLevel() => " + e;
+ 		            g_errorMessage = "Error : getSpeedLevel() : ";
  		            return 0;
  		        }
  		    }
@@ -350,7 +411,7 @@
  		                return direction = 0;
  		            }
  		        } catch (e) {
- 		            g_errorMessage = "Error : getDirection() => " + e;
+ 		            g_errorMessage = "Error : getDirection() : ";
  		            return 0;
  		        }
  		    }

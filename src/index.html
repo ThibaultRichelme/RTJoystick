@@ -1,32 +1,21 @@
 <!DOCTYPE HTML>
 <html>
   <head>
-  <script type="text/javascript" src="Joystick.js"></script>
-    <style type="text/css">
-      #myCanvas{background-color: #0000;}
-    </style>
-    
-    
+  <script type="text/javascript" src="Joystick.js"></script>   
   </head>
-  
-
   <body>      
- 
- 
     <script>
  	
 		var RTJoystick = new Joystick();
-		RTJoystick.initialize("joystickCanvas","250","250",20,true,'http://www.site.com'); 
+		RTJoystick.initialize("joystickCanvas", //Canvas id of the widget canvas
+							  "250",  // Canvas width
+							  "250",  // Canvas height
+							  20,     // Speed levels
+							  true,   // Show console with data
+							  'http://localhost:8080/examples/index.html', //Site to post Direction,Angle,Speed
+							  true);  //Debug infos
 	
-		
     </script>
-    
-     
-    
-    
-    
-  
-
   </body>
 </html>  
 
