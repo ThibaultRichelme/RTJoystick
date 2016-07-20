@@ -1,4 +1,15 @@
+           /*
 
+           		Project Name: RTJoystick
+           		Author: Thibault Richelmme
+           		Date: 20/06/1976
+           		Description: RTJoystick provides a Joystick widget to include in webpages for controlling robot 
+           
+           */
+           
+           
+           
+           
  	 		function Joystick() 
  	 		{
 
