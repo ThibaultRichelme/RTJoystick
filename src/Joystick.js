@@ -2,7 +2,7 @@
 
            		Project Name: RTJoystick
            		Author: Thibault Richelme
-           		Date: 20/06/1976
+           		Date: 20/06/2016
            		Description: RTJoystick provides a Joystick widget to include in webpages for controlling robot 
            
            */
@@ -65,7 +65,9 @@
 
 				Joystick.prototype.getData = function() 
 				{
+					
 					return getWidgetData.call(this);
+					
 				}
 				
 
@@ -139,7 +141,9 @@
 				
 				function getWidgetDataAsUrlParameters()
 				{
+					
 					return "?direction=" + getWidgetData().direction + '&angle=' + getWidgetData().angle + '&speed=' + getWidgetData().speed;
+				
 				}
 
 				function postWidgetData(url) {
@@ -178,7 +182,7 @@
 				}
  		    
 
-				function drawWidget(canvas, message, mousePos) {
+				function drawWidget(canvas, widgetData, mousePos) {
 	
 					var context = canvas.getContext('2d');
 					context.clearRect(0, 0, canvas.width, canvas.height);
@@ -248,13 +252,21 @@
 						g_debugConsoleCtx.clearRect(0, 0, canvas.width, canvas.height);
 						g_debugConsoleCtx.font = '12pt Calibri';
 						g_debugConsoleCtx.fillStyle = '#000000';
-						g_debugConsoleCtx.fillText(message, 10, 25);
+			
+						var x = 10;
+						var y = 25;
+						var lineheight = 15;
+						var lines = widgetData.split('\n');
+						
+						for (var i = 0; i < lines.length; i++)
+							g_debugConsoleCtx.fillText(lines[i], x, y + (i*lineheight) );
 					}	
 				}
 
  		    
  		    //Return all calculated data in an Object
  		    function getWidgetData() {
+ 		    	
  		        try {
  		     
  		            var cartesianCoords = getMouseCartesianPos(g_canvas, g_mousePos);
@@ -290,14 +302,20 @@
 
  		    
  		    //Return object to a String
- 		    function getWidgetDataToString() {
- 		        try {
- 		            return widgetValues = g_widgetData.angle + ', ' + g_widgetData.coordx + ', ' + g_widgetData.coordy + ', ' + g_widgetData.direction + ', ' + g_widgetData.speed + ', ' + g_widgetData.radius;
- 		        } catch (e) {
+ 		    function getWidgetDataToString() 
+ 		    {
+ 		    	try 
+ 		    	{
+		    		
+ 		            return widgetValues = "Angle: " + g_widgetData.angle + "\n" +  'Direction: ' + g_widgetData.direction + "\n" + "Speed: " + g_widgetData.speed + "\n" + "Radius: " + g_widgetData.radius + "\n" + "Coordx: " + g_widgetData.coordx + "\n" + "Coordy: " +  g_widgetData.coordy ;
+ 		            
+ 		        } 
+ 		        catch (e) 
+ 		        {
  		            g_errorMessage = "Error : getWidgetDataToString() : ";
  		            getDebugInfosInConsole(g_errorMessage + e);
  		            return "";
- 		        }
+ 		        }		        
  		    }
 
  		    
